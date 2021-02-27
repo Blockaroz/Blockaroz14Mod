@@ -31,7 +31,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.penetrate = -1;
-            Projectile.extraUpdates = 3;
+            Projectile.extraUpdates = 2;
             Projectile.timeLeft = 720;
         }
 
@@ -56,7 +56,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
 
             Projectile.localAI[0]++;
 
-            if (Projectile.localAI[0] >= Main.rand.Next(15, 30))
+            if (Projectile.localAI[0] >= Main.rand.Next(2, 14))
             {
                 if (random != 0)
                     random *= -1f;
@@ -96,13 +96,13 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
             Projectile.rotation = Projectile.velocity.ToRotation();
             Asset<Texture2D> texture = ModContent.GetTexture("Blockaroz14Mod/Assets/Streak_" + (short)1);
 
-            ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, Projectile.scale * 0.9f, 1f, 2f, Projectile.rotation, ExtendedColor.JellyOrange, Color.LightGoldenrodYellow);
+            ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, Projectile.scale, 1f, 2f, Projectile.rotation, ExtendedColor.JellyOrange, Color.LightGoldenrodYellow);
             for (int i = 0; i < ProjectileID.Sets.TrailCacheLength[Type]; i++)
             {
-                ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.oldPos[i] + (Projectile.Size / 2) - Main.screenPosition, Projectile.scale * 0.5f, 1f, 2f, Projectile.oldRot[i], ExtendedColor.JellyOrange, Color.DarkGoldenrod);
+                float strength = Utils.GetLerpValue(ProjectileID.Sets.TrailCacheLength[Type], 1, i, true);
+                ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.oldPos[i] + (Projectile.Size / 2) - Main.screenPosition, Projectile.scale * strength, 1f, 2f, Projectile.oldRot[i], ExtendedColor.JellyOrange, Color.DarkGoldenrod);
 
-                float lightStrength = Utils.GetLerpValue(ProjectileID.Sets.TrailCacheLength[Type], 0.1f, i, true);
-                Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * 0.3f * lightStrength);
+                Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * 0.3f * strength);
             }
 
             if (Projectile.timeLeft >= 705)
