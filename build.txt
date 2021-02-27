@@ -1,0 +1,3 @@
+displayName = Blockaroz Mod
+author = Blockaroz
+version = 0.1
