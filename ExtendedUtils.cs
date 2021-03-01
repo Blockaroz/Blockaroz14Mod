@@ -10,7 +10,7 @@ namespace Blockaroz14Mod
         /// <summary>
         /// Modular sparkle drawer. Works best with symmetrical textures.
         /// </summary>
-        public static void DrawSparkle(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, float scale, float thickness, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
+        internal static void DrawSparkle(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, float scale, float thickness, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
         {
             Vector2 origin = texture.Size() / 2f;
 
@@ -31,7 +31,7 @@ namespace Blockaroz14Mod
         /// <summary>
         /// Useful for sparkles that don't use symmetrical textures.
         /// </summary>
-        public static void DrawStreak(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, float scale, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
+        internal static void DrawStreak(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, float scale, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
         {
             Vector2 origin = texture.Size() / 2f;
 
@@ -49,17 +49,17 @@ namespace Blockaroz14Mod
         /// <summary>
         /// returns a function between 0 and 1, based on your value. Set start and end below max for non-square scaling.
         /// </summary>
-        public static float GetSquareLerp(float start, float max, float end, float value)
+        internal static float GetSquareLerp(float start, float max, float end, float value)
         {
             return Utils.GetLerpValue(start, max, value, true) * Utils.GetLerpValue(end, max, value, true);
         }
 
-        public static float GetCircle(float counter, float total)
+        internal static float GetCircle(float counter, float total)
         {
             return (MathHelper.TwoPi / total) * counter;
         }
 
-        public static Vector2 GetPositionAroundTarget(Vector2 center, float radius, bool careAboutTiles)
+        internal static Vector2 GetPositionAroundTarget(Vector2 center, float radius, bool careAboutTiles)
         {
             Vector2 rotation = -(Vector2.UnitY * radius).RotatedByRandom(MathHelper.Pi);
 

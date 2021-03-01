@@ -21,8 +21,8 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
 
         public override void SetDefaults()
         {
-            Projectile.width = 42;
-            Projectile.height = 42;
+            Projectile.width = 22;
+            Projectile.height = 22;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = false;
@@ -57,9 +57,11 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
-            Asset<Texture2D> texture = ModContent.GetTexture("Blockaroz14Mod/Assets/Streak_" + (short)1);
-            //HOW 
-            return true;
+            Asset<Texture2D> texture = TextureAssets.Projectile[Type];
+            
+
+
+            return false;
         }
     }
 }
