@@ -14,6 +14,12 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
     {
         public override string Texture => "Blockaroz14Mod/Content/Projectiles/JellyfishProjs/JellyfishExplosionProj";
 
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 3;
+            ProjectileID.Sets.TrailCacheLength[Type] = 5;
+        }
+
         public override void SetDefaults()
         {
             Projectile.width = 42;
@@ -27,22 +33,22 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
         public override void AI()
         {
             Projectile.ai[0]++;
-            if (Projectile.ai[0] >= 80)
+            if (Projectile.ai[0] >= 60)
             {
                 Projectile.Kill();
             }
 
-            if (Projectile.ai[0] >= 30)
+            if (Projectile.ai[0] >= 25)
             {
                 Projectile.velocity *= 0.65f;
             }
 
-            if (Projectile.ai[0] == 71)
+            if (Projectile.ai[0] == 51)
             {
                 //resize method is private, so we do this
                 Projectile.position = Projectile.Center;
-                Projectile.width = 136;
-                Projectile.height = 136;
+                Projectile.width = 140;
+                Projectile.height = 140;
                 Projectile.Center = Projectile.position;
 
                 Projectile.hostile = true;
@@ -67,7 +73,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
                 }
             }
 
-            float lightStrength = Utils.GetLerpValue(0, 90, Projectile.ai[0]);
+            float lightStrength = Utils.GetLerpValue(0, 80, Projectile.ai[0]);
             Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * lightStrength);
         }
 
@@ -87,17 +93,25 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
 
             for (int i = 0; i < 4; i++)
             {
-                float glowScale = ExtendedUtils.GetSquareLerp(-5, 42, 70, Projectile.ai[0] - (i * 3f)) * 1.5f;
-                ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, glowScale, 1.5f + (i / 2), 1.5f + (i / 2), 0, ExtendedColor.JellyOrange, Color.DarkGoldenrod, 0.2f);
+                float glowScale = ExtendedUtils.GetSquareLerp(-5, 30, 50, Projectile.ai[0] - (i * 3f)) * 0.8f;
+                ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, glowBall.Size() / 2f, glowScale, 1.5f + (i / 2), 1.5f + (i / 2), 0, ExtendedColor.JellyOrange, Color.DarkGoldenrod, 0.2f);
             }
-            if (Projectile.ai[0] <= 60)
+            if (Projectile.ai[0] <= 50)
             {
-                float bubbleScale = ExtendedUtils.GetSquareLerp(5, 65, 5, Projectile.ai[0]);
+                float bubbleScale = ExtendedUtils.GetSquareLerp(1, 30, 1, Projectile.ai[0]);
+                for (int i = 0; i < 5; i++)
+                {
+                    float strength = Utils.GetLerpValue(10, 0, i, true);
+                    Color trailColor = Color.Lerp(Color.Goldenrod, ExtendedColor.JellyOrange, strength) * strength;
+                    trailColor.A /= 3;
+                    Vector2 pos = Projectile.oldPos[i] - Main.screenPosition + (Projectile.Size / 2f);
+                    spriteBatch.Draw(TextureAssets.Projectile[Type].Value, pos, null, trailColor, 0, Projectile.Size / 2f, bubbleScale, SpriteEffects.None, 0);
+                }
                 spriteBatch.Draw(TextureAssets.Projectile[Type].Value, Projectile.Center - Main.screenPosition, null, drawColor, 0, Projectile.Size / 2f, bubbleScale, SpriteEffects.None, 0);
             }
 
-            float explosionScale = ExtendedUtils.GetSquareLerp(65, 68, 80, Projectile.ai[0]) * 1.5f;
-            ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, explosionScale, 2f, 2f, 0f, ExtendedColor.JellyOrange, ExtendedColor.JellyOrange);
+            float explosionScale = ExtendedUtils.GetSquareLerp(45, 48, 60, Projectile.ai[0]) * 1.5f;
+            ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, glowBall.Size() / 2f, explosionScale, 2f, 2f, 0f, ExtendedColor.JellyOrange, ExtendedColor.JellyOrange);
 
             if (Projectile.ai[0] < 60)
             {

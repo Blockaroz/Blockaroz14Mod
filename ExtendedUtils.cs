@@ -10,10 +10,8 @@ namespace Blockaroz14Mod
         /// <summary>
         /// Modular sparkle drawer. Works best with symmetrical textures.
         /// </summary>
-        internal static void DrawSparkle(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, float scale, float thickness, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
+        internal static void DrawSparkle(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, Vector2 origin, float scale, float thickness, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
         {
-            Vector2 origin = texture.Size() / 2f;
-
             Color color1 = drawColor * opacity;
             color1.A = colorAlpha;
             Color color2 = shineColor * opacity;
@@ -31,10 +29,8 @@ namespace Blockaroz14Mod
         /// <summary>
         /// Useful for sparkles that don't use symmetrical textures.
         /// </summary>
-        internal static void DrawStreak(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, float scale, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
+        internal static void DrawStreak(Asset<Texture2D> texture, SpriteEffects dir, Vector2 drawCenter, Vector2 origin, float scale, float width, float height, float rotation, Color drawColor, Color shineColor, float opacity = 1f, byte colorAlpha = 0)
         {
-            Vector2 origin = texture.Size() / 2f;
-
             Color color1 = drawColor * opacity;
             color1.A = colorAlpha;
             Color color2 = shineColor * opacity;
@@ -46,12 +42,14 @@ namespace Blockaroz14Mod
             Main.EntitySpriteDraw(texture.Value, drawCenter, null, color2, rotation + MathHelper.PiOver2, origin, vector * 0.56f, dir, 0);
         }
 
-        /// <summary>
-        /// returns a function between 0 and 1, based on your value. Set start and end below max for non-square scaling.
-        /// </summary>
-        internal static float GetSquareLerp(float start, float max, float end, float value)
+        internal static float GetSquareLerp(float start, float middle, float end, float value)
         {
-            return Utils.GetLerpValue(start, max, value, true) * Utils.GetLerpValue(end, max, value, true);
+            return Utils.GetLerpValue(start, middle, value, true) * Utils.GetLerpValue(end, middle, value, true);
+        }
+
+        internal static float GetSquareLerp(float start, float middleOne, float middleTwo, float end, float value)
+        {
+            return Utils.GetLerpValue(start, middleOne, value, true) * Utils.GetLerpValue(end, middleTwo, value, true);
         }
 
         internal static float GetCircle(float counter, float total)

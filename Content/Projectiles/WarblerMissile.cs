@@ -2,6 +2,7 @@
 using Blockaroz14Mod.Effects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.GameContent;
@@ -106,7 +107,8 @@ namespace Blockaroz14Mod.Content.Projectiles
 
         public override void PostDraw(SpriteBatch spriteBatch, Color lightColor)
         {
-            ExtendedUtils.DrawStreak(TextureAssets.Extra[98], SpriteEffects.None, Projectile.Center - Main.screenPosition, Projectile.scale, 0.8f, 1.2f, Projectile.rotation, ExtendedColor.ShadeColor, Color.Black, 1, 250);
+            Asset<Texture2D> texture = TextureAssets.Extra[98];
+            ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, texture.Size() / 2f, Projectile.scale, 0.8f, 1.2f, Projectile.rotation, ExtendedColor.ShadeColor, Color.Black, 1, 250);
         }
     }
 }

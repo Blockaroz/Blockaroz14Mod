@@ -70,12 +70,12 @@ namespace Blockaroz14Mod.Content.NPCs
                 }
             }
 
-            Movement(player.MountedCenter, 0.8f);
+            Movement(player.MountedCenter, 0.5f);
         }
 
         public void Movement(Vector2 position, float speed = 1f)
         {
-            if (Vector2.Distance(NPC.Center, position) > 50)
+            if (Vector2.Distance(NPC.Center, position) > 550)
                 NPC.velocity += NPC.DirectionTo(position) * speed;
             else
                 SlowMovement();

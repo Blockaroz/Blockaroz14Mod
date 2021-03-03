@@ -60,7 +60,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
                 }
             }
 
-            float lightStrength = Utils.GetLerpValue(0, 90, Projectile.ai[0]);
+            float lightStrength = Utils.GetLerpValue(0, 80, Projectile.ai[0]);
             Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * lightStrength);
         }
 
@@ -81,16 +81,16 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
             for (int i = 0; i < 4; i++)
             {
                 float glowScale = ExtendedUtils.GetSquareLerp(1, 32, 60, Projectile.ai[0] - (i * 3f)) * 1.5f;
-                ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, glowScale, 1.5f + (i / 2), 1.5f + (i / 2), 0, ExtendedColor.JellyOrange, Color.DarkGoldenrod, 0.2f);
+                ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, glowBall.Size() / 2f, glowScale, 1.5f + (i / 2), 1.5f + (i / 2), 0, ExtendedColor.JellyOrange, Color.DarkGoldenrod, 0.2f);
             }
             if (Projectile.ai[0] <= 60)
             {
-                float bubbleScale = ExtendedUtils.GetSquareLerp(5, 55, 5, Projectile.ai[0]);
+                float bubbleScale = ExtendedUtils.GetSquareLerp(9, 50, 9, Projectile.ai[0]);
                 spriteBatch.Draw(TextureAssets.Projectile[Type].Value, Projectile.Center - Main.screenPosition, null, drawColor, 0, Projectile.Size / 2f, bubbleScale, SpriteEffects.None, 0);
             }
 
             float explosionScale = ExtendedUtils.GetSquareLerp(55, 58, 70, Projectile.ai[0]) * 1.5f;
-            ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, explosionScale, 2f, 2f, 0f, ExtendedColor.JellyOrange, ExtendedColor.JellyOrange);
+            ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, Projectile.Center - Main.screenPosition, glowBall.Size() / 2f, explosionScale, 2f, 2f, 0f, ExtendedColor.JellyOrange, ExtendedColor.JellyOrange);
 
             if (Projectile.ai[0] < 60)
             {

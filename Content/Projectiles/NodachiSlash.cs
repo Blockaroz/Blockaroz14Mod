@@ -1,6 +1,7 @@
 ﻿using Blockaroz14Mod.Effects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.GameContent;
@@ -107,7 +108,8 @@ namespace Blockaroz14Mod.Content.Projectiles
                 float lerp = ExtendedUtils.GetSquareLerp(0f, 25f, 50f, Projectile.localAI[0] - i);
                 Vector2 pos = Projectile.oldPos[i] + (Projectile.Size / 2) - new Vector2(0, 40 + i).RotatedBy(Projectile.oldRot[i]) - Main.screenPosition;
 
-                ExtendedUtils.DrawSparkle(TextureAssets.Extra[98], SpriteEffects.None, pos, lerp * 0.7f, lerp * 0.6f, lerp * Main.rand.NextFloat(0.5f, 0.7f), lerp * Main.rand.NextFloat(1.5f, 2f), Projectile.oldRot[i] + MathHelper.PiOver2, ExtendedColor.LightRed, Color.White);
+                Asset<Texture2D> texture = TextureAssets.Extra[98];
+                ExtendedUtils.DrawSparkle(texture, SpriteEffects.None, pos, texture.Size() / 2f, lerp * 0.7f, lerp * 0.6f, lerp * Main.rand.NextFloat(0.5f, 0.7f), lerp * Main.rand.NextFloat(1.5f, 2f), Projectile.oldRot[i] + MathHelper.PiOver2, ExtendedColor.LightRed, Color.White);
             }
             return false;
         }

@@ -1,6 +1,7 @@
 ﻿using Blockaroz14Mod.Content.Buffs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.GameContent;
@@ -157,7 +158,8 @@ namespace Blockaroz14Mod.Content.Projectiles
             Projectile.localAI[0] = (float)Math.Cos(Main.GlobalTimeWrappedHourly * 4.5f) * 0.05f;
             Projectile.localAI[1] = (float)Math.Cos(Main.GlobalTimeWrappedHourly * 4.5f) * 0.05f;
 
-            ExtendedUtils.DrawSparkle(TextureAssets.Extra[98], SpriteEffects.None, Projectile.Center - Main.screenPosition, 0.5f + Projectile.localAI[0], 0.5f, 1.5f + Projectile.localAI[1], 1.5f + Projectile.localAI[1], 0f, ColorMethod(speed: 1.77f, L: 0.6f), Color.White, 1f);
+            Asset<Texture2D> texture = TextureAssets.Extra[98];
+            ExtendedUtils.DrawSparkle(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, texture.Size() / 2f, 0.5f + Projectile.localAI[0], 0.5f, 1.5f + Projectile.localAI[1], 1.5f + Projectile.localAI[1], 0f, ColorMethod(speed: 1.77f, L: 0.6f), Color.White, 1f);
 
             return false;
         }

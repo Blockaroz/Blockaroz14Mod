@@ -31,7 +31,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.penetrate = -1;
-            Projectile.extraUpdates = 2;
+            Projectile.extraUpdates = 3;
             Projectile.timeLeft = 900;
         }
 
@@ -46,7 +46,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
 
             Projectile.localAI[0]++;
 
-            if (Projectile.localAI[0] >= Main.rand.Next(4, 12))
+            if (Projectile.localAI[0] >= Main.rand.Next(3, 36))
             {
                 if (random != 0)
                     random *= -1f;
@@ -83,7 +83,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
         {
             Asset<Texture2D> texture = ModContent.GetTexture("Blockaroz14Mod/Assets/Streak_" + (short)1);
 
-            ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, Projectile.scale * 0.3f, 1f, 1.2f, Projectile.rotation, ExtendedColor.JellyOrange, Color.White);
+            ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, texture.Size() / 2f, Projectile.scale * 0.3f, 1f, 1.2f, Projectile.rotation, ExtendedColor.JellyOrange, Color.White);
 
             for (int i = 0; i < ProjectileID.Sets.TrailCacheLength[Type]; i++)
             {
@@ -92,7 +92,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
                 float length = Projectile.scale * MathHelper.Lerp(1.5f, 1f, Utils.GetLerpValue(60, 1, i, true));
                 Color lerpColor = Color.Lerp(Color.Goldenrod, Color.White, strength);
 
-                ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.oldPos[i] + (Projectile.Size / 2) - Main.screenPosition, strength2, 1f, length, Projectile.oldRot[i], ExtendedColor.JellyOrange, lerpColor);
+                ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.oldPos[i] + (Projectile.Size / 2) - Main.screenPosition, texture.Size() / 2f, strength2, 1f, length, Projectile.oldRot[i], ExtendedColor.JellyOrange, lerpColor);
 
                 Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * 0.3f * strength);
             }
