@@ -54,7 +54,7 @@ namespace Blockaroz14Mod
 
         internal static float GetCircle(float counter, float total)
         {
-            return (MathHelper.TwoPi / total) * counter;
+            return (MathHelper.TwoPi / (total)) * counter;
         }
 
         internal static Vector2 GetPositionAroundTarget(Vector2 center, float radius, bool careAboutTiles)

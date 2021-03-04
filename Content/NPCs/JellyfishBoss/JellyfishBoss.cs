@@ -69,7 +69,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
         public ref float ExtraCounter => ref NPC.localAI[1];
 
         public static float PhaseTimerMax = 60;
-        public static float TeleportTime = PhaseTimerMax;
+        public static float TeleportTime;
         public static float BaseAttackTime = 100;
         public static float TrailAttackTime = 20;
         public static float TrailAttackTimeMax = 140;
@@ -77,7 +77,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
         public static int BubbleDust = ModContent.DustType<JellyfishBubbleDust>();
         public static int JellyExplodeDust = ModContent.DustType<JellyExplosionDust>();
 
-        public static int CoreOffset = 60;
+        public static int CoreOffset = 40;
 
         public override void AI()
         {
@@ -100,25 +100,32 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
 
             if (OverallPhase <= 2)
             {
+                TeleportTime = 50;
                 PhaseTimer++;
-                if (PhaseTimer > PhaseTimerMax)
-                    PhaseTimer = PhaseTimerMax;
+                if (PhaseTimer > 50)
+                    PhaseTimer = 50;
 
                 if (Phase <= 0)
                     Phase++;
 
-                if (Phase == 1 && PhaseTimer == PhaseTimerMax && TeleportNext == false)
-                    BaseAttack(player);
+                if (PhaseTimer == 50)
+                {
+                    if (Phase == 1 && TeleportNext == false)
+                        BaseAttack(player);
 
-                else if (Phase == 1 && PhaseTimer == PhaseTimerMax && TeleportNext == true)
-                    SpinBaseAttack(player);
+                    else if (Phase == 1 && TeleportNext == true)
+                        SpinBaseAttack(player);
 
-                else if (Phase == 2 && PhaseTimer == PhaseTimerMax)
-                    ExplosionAttack(player, true, OverallPhase == 2);
+                    else if (Phase == 2)
+                        ExplosionAttack(player, true, OverallPhase == 2);
 
-                else if (Phase == 3 && PhaseTimer == PhaseTimerMax && OverallPhase == 2)
-                    LightningCircleAttack(player);
+                    else if (Phase == 3 && OverallPhase == 2)
+                        LightningCircleAttack(player);
 
+                    else if (Phase == 4)
+                        ResetAI(true);
+
+                }
                 else if (TeleportNext == true)
                     Teleport(player);
 
@@ -140,13 +147,15 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                 PhaseTimer++;
                 for (int i = 0; i < 180; i++)
                 {
-                    if (PhaseTimer == i * 10)
+                    if (PhaseTimer == i * 2)
                     {
                         ExplosionAttack(player, false, true);
                     }
                 }
                 if (PhaseTimer >= 180)
                 {
+                    SoundEngine.PlaySound(SoundID.Roar, NPC.Center);
+
                     DrawPhase = 0;
                     NPC.immortal = false;
                     PhaseTimer = 0;
@@ -160,25 +169,38 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             }
             else if (OverallPhase == 4)
             {
-                NPC.defense = 50;
+                NPC.defense = 60;
+                TeleportTime = 24;
                 PhaseTimer++;
-                if (PhaseTimer > PhaseTimerMax)
-                    PhaseTimer = PhaseTimerMax;
+                if (PhaseTimer > 25)
+                    PhaseTimer = 25;
 
                 if (Phase <= 0)
                     Phase++;
 
-                if (Phase == 1 && PhaseTimer == PhaseTimerMax && TeleportNext == false)
-                    BaseAttackTwo(player);
+                if (PhaseTimer == 25)
+                {
+                    if (Phase == 1 && TeleportNext == false)
+                    {
+                        if (Main.expertMode)
+                            BaseAttackTwo(player);
 
-                else if (Phase == 2 && PhaseTimer == PhaseTimerMax)
-                    SpinExplosionAttack(player);
+                        else
+                            BaseAttack(player);
+                    }
 
-                else if (Phase == 3 && PhaseTimer == PhaseTimerMax)
-                    ExplosionAttack(player, true, false);
+                    //else if (Phase == 1 && TeleportNext == true)
+                        //
 
-                else if (Phase == 4 && PhaseTimer == PhaseTimerMax)
-                    ResetAI(true);
+                    else if (Phase == 2)
+                        ExplosionAttackTwo(player);
+
+                    else if (Phase == 3)
+                        ExplosionAttack(player, true, false);
+
+                    else if (Phase == 4)
+                        ResetAI(true);
+                }
 
                 else if (TeleportNext == true)
                     Teleport(player);
@@ -251,7 +273,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             if (NPC.velocity.Length() < 0.0044f)
                 NPC.velocity = Vector2.Zero;
         }
- 
+
         public void Teleport(Player player)
         {
             DrawPhase = -1;
@@ -329,7 +351,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                 {
                     float rotation = NPC.Center.DirectionTo(player.MountedCenter).ToRotation();
                     Vector2 offset = new Vector2(CoreOffset, 0).RotatedBy(rotation);
-                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedByRandom(0.1f) * (10f + i), ModContent.ProjectileType<JellyfishBoltProj>(), NPC.damage, 0);
+                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedByRandom(0.1f) * (15f + i), ModContent.ProjectileType<JellyfishBoltProj>(), NPC.damage, 0);
                 }
             }
             if (LocalCounter >= BaseAttackTime)
@@ -345,14 +367,14 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
 
             LocalCounter++;
 
-            for (int i = 0; i < (84 / 7); i++)
+            for (int i = 0; i < (63 / 7); i++)
             {
-                if (LocalCounter == 7 * i && LocalCounter > 5)
+                if (LocalCounter == 7 * i && LocalCounter >= 21)
                 {
                     SoundEngine.PlaySound(SoundID.Item62, NPC.Center);
                     float rotation = NPC.Center.DirectionTo(player.MountedCenter).ToRotation();
                     Vector2 offset = new Vector2(CoreOffset, 0).RotatedBy(rotation);
-                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedBy(1) * 5f, ModContent.ProjectileType<JellyfishLightningProj>(), NPC.damage, 0);
+                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedBy(MathHelper.PiOver2 / 3) * 6f, ModContent.ProjectileType<JellyfishLightningProj>(), NPC.damage, 0);
                 }
             }
             if (LocalCounter >= 84)
@@ -373,7 +395,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                 {
                     float rotation = ExtendedUtils.GetCircle(i * 3, TotalProjectiles) + (Main.rand.NextFloat(-3, 3) / 30);
                     Vector2 offset = new Vector2(0, CoreOffset).RotatedBy(rotation);
-                    Vector2 speed = new Vector2(0, Main.rand.Next(8, 12)).RotatedBy(rotation);
+                    Vector2 speed = new Vector2(0, Main.rand.Next(15, 18)).RotatedBy(rotation);
                     Projectile.NewProjectile(NPC.Center + offset, speed, ModContent.ProjectileType<JellyfishBoltProj>(), NPC.damage, 0);
                 }
             }
@@ -418,7 +440,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                     if (LocalCounter == TrailAttackTime * multiplier && aroundPlayer)
                     {
                         Vector2 pos1 = ExtendedUtils.GetPositionAroundTarget(target.MountedCenter, Main.rand.Next(60, 720), true);
-                        Projectile.NewProjectile(pos1, pos1.DirectionTo(target.MountedCenter), ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.damage, 0);
+                        Projectile.NewProjectile(pos1, pos1.DirectionTo(player.MountedCenter), ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.damage, 0);
                     }
 
                     if (LocalCounter == (TrailAttackTime * multiplier * 2f) + (TrailAttackTime * 0.5f) && onPlayer)
@@ -443,21 +465,25 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             }
         }
 
-        public void SpinExplosionAttack(Player player)
+        public void ExplosionAttackTwo(Player player)
         {
             LocalCounter++;
             int TotalProjectiles = GetScaledNumbers(10);
 
             for (int i = 0; i < TotalProjectiles; i++)
             {
-                if (LocalCounter == (i * 3) && LocalCounter >= 30)
+                if (LocalCounter == (i * 3) && LocalCounter >= 10)
                 {
                     float rotation = ExtendedUtils.GetCircle(i * 3, TotalProjectiles) + (Main.rand.NextFloat(-3, 3) / 30);
                     Vector2 offset = new Vector2(0, CoreOffset).RotatedBy(rotation);
                     Vector2 speed = new Vector2(0, Main.rand.Next(11, 15)).RotatedBy(rotation);
                     Projectile.NewProjectile(NPC.Center + offset, speed, ModContent.ProjectileType<JellyfishMovingExplosionProj>(), NPC.damage, 0);
+                }
 
-                    Projectile.NewProjectile(ExtendedUtils.GetPositionAroundTarget(NPC.Center, Main.rand.Next(60, 720), true), Vector2.Zero, ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.damage, 0);
+                if (LocalCounter == (i * 6))
+                {
+                    Vector2 speed = NPC.Center.DirectionTo(player.MountedCenter);
+                    Projectile.NewProjectile(ExtendedUtils.GetPositionAroundTarget(NPC.Center, Main.rand.Next(60, 720), true), Vector2.Zero, ModContent.ProjectileType<JellyfishMovingExplosionProj>(), NPC.damage, 0);
                 }
             }
 
@@ -474,8 +500,11 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             else if (LocalCounter <= 70)
                 Slow(0.85f);
 
-            if (LocalCounter >= 90)
+            if (LocalCounter >= 80)
             {
+                if (Main.rand.Next(2) == 0)
+                    TeleportNext = true;
+
                 ResetAI(false);
                 return;
             }
@@ -518,7 +547,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                 if (Main.rand.Next(2) == 0 && OverallPhase == 2)
                     TeleportNext = true;
 
-                ResetAI(true);
+                ResetAI(false);
                 return;
             }
         }
