@@ -34,7 +34,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
         public override void AI()
         {
             if (Projectile.timeLeft == 720)
-                SoundEngine.PlaySound(SoundID.Item33, Projectile.Center);
+                SoundEngine.PlaySound(SoundID.Item45, Projectile.Center);
 
             if (Projectile.timeLeft <= 360)
             {
@@ -75,7 +75,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
             ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, origin, 1f, 1f, 1f, Projectile.rotation, ExtendedColor.JellyOrange, Color.LightGoldenrodYellow);
 
             Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * 0.3f);
-            Dust dust = Main.dust[Dust.NewDust(Projectile.oldPos[1] + (Projectile.Size / 2f), 0, 0, ModContent.DustType<JellyExplosionDust>(), 0, 0, 128, ExtendedColor.JellyOrange, 1.3f)];
+            Dust dust = Main.dust[Dust.NewDust(Projectile.oldPos[1] + (Projectile.Size / 2f), 0, 0, ModContent.DustType<JellyExplosionDust>(), 0, 0, 128, Color.White, 1.3f)];
             dust.noGravity = true;
 
             return false;

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
+using System.IO;
 using System.Linq;
 using Terraria;
 using Terraria.Audio;
@@ -19,6 +20,25 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
         public override string Texture => "Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishBubble";
 
         public override string BossHeadTexture => "Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishBoss_Head";
+
+        public ref float Phase => ref NPC.ai[0];
+        public ref float PhaseTimer => ref NPC.ai[1];
+        public ref float OverallPhase => ref NPC.ai[2];
+        public ref float DrawPhase => ref NPC.ai[3];
+        public bool TeleportNext = false;
+        public ref float LocalCounter => ref NPC.localAI[0];
+        public ref float ExtraCounter => ref NPC.localAI[1];
+
+        public static float PhaseTimerMax = 60;
+        public static float TeleportTime;
+        public static float BaseAttackTime = 100;
+        public static float TrailAttackTime = 20;
+        public static float TrailAttackTimeMax = 140;
+
+        public static int BubbleDust = ModContent.DustType<JellyfishBubbleDust>();
+        public static int JellyExplodeDust = ModContent.DustType<JellyExplosionDust>();
+
+        public static int CoreOffset = 40;
 
         public override void SetStaticDefaults()
         {
@@ -47,8 +67,8 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             NPC.noGravity = true;
             NPC.aiStyle = -1;
             NPC.noTileCollide = true;
-            NPC.HitSound = SoundID.NPCHit1;
-            NPC.DeathSound = SoundID.NPCDeath22;
+            NPC.HitSound = SoundID.NPCHit13;
+            NPC.DeathSound = SoundID.NPCDeath32;
 
             Music = MusicID.OtherworldlyBoss1;
             NPC.lifeMax = 7000;
@@ -57,27 +77,33 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             NPC.value = Item.buyPrice(gold: 4);
             NPC.SpawnWithHigherTime(30);
             NPC.knockBackResist = 0.2f;
-            NPC.damage = NPC.GetAttackDamage_ScaledByStrength(15f);
+            NPC.damage = NPC.GetAttackDamage_LerpBetweenFinalValues(20, 40);
         }
 
-        public ref float Phase => ref NPC.ai[0];
-        public ref float PhaseTimer => ref NPC.ai[1];
-        public ref float OverallPhase => ref NPC.ai[2];
-        public ref float DrawPhase => ref NPC.ai[3];
-        public bool TeleportNext = false;
-        public ref float LocalCounter => ref NPC.localAI[0];
-        public ref float ExtraCounter => ref NPC.localAI[1];
+        public override void OnKill()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Dust orangeDust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, JellyExplodeDust, 0, 0, 128, Color.White, 1f);
+                Vector2 orangeSpeed = orangeDust.position.DirectionFrom(NPC.Center);
+                orangeDust.velocity = orangeSpeed;
+            }
+            Dust bubbleDust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, JellyExplodeDust, 0, 0, 128, Color.White, 1f);
+            Vector2 bubbleSpeed = bubbleDust.position.DirectionFrom(NPC.Center);
+            bubbleDust.velocity = bubbleSpeed;
+        }
 
-        public static float PhaseTimerMax = 60;
-        public static float TeleportTime;
-        public static float BaseAttackTime = 100;
-        public static float TrailAttackTime = 20;
-        public static float TrailAttackTimeMax = 140;
+        public override void SendExtraAI(BinaryWriter writer)
+        {
+            writer.Write(TeleportNext);
+            writer.Write(TeleportTime);
+        }
 
-        public static int BubbleDust = ModContent.DustType<JellyfishBubbleDust>();
-        public static int JellyExplodeDust = ModContent.DustType<JellyExplosionDust>();
-
-        public static int CoreOffset = 40;
+        public override void ReceiveExtraAI(BinaryReader reader)
+        {
+            TeleportNext = reader.ReadBoolean();
+            TeleportTime = reader.Read();
+        }
 
         public override void AI()
         {
@@ -149,7 +175,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                 {
                     if (PhaseTimer == i * 2)
                     {
-                        ExplosionAttack(player, false, true);
+                        TransitionAttack(player);
                     }
                 }
                 if (PhaseTimer >= 180)
@@ -196,7 +222,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                         ExplosionAttackTwo(player);
 
                     else if (Phase == 3)
-                        ExplosionAttack(player, true, false);
+                        ExplosionAttack(player, true, false, true);
 
                     else if (Phase == 4)
                         ResetAI(true);
@@ -351,7 +377,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                 {
                     float rotation = NPC.Center.DirectionTo(player.MountedCenter).ToRotation();
                     Vector2 offset = new Vector2(CoreOffset, 0).RotatedBy(rotation);
-                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedByRandom(0.1f) * (15f + i), ModContent.ProjectileType<JellyfishBoltProj>(), NPC.damage, 0);
+                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedByRandom(0.1f) * (15f + i), ModContent.ProjectileType<JellyfishBoltProj>(), NPC.GetAttackDamage_ForProjectiles(20, 40), 0);
                 }
             }
             if (LocalCounter >= BaseAttackTime)
@@ -371,10 +397,12 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             {
                 if (LocalCounter == 7 * i && LocalCounter >= 21)
                 {
-                    SoundEngine.PlaySound(SoundID.Item62, NPC.Center);
+                    SoundEngine.PlaySound(SoundID.Item72, NPC.Center);
+
+
                     float rotation = NPC.Center.DirectionTo(player.MountedCenter).ToRotation();
                     Vector2 offset = new Vector2(CoreOffset, 0).RotatedBy(rotation);
-                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedBy(MathHelper.PiOver2 / 3) * 6f, ModContent.ProjectileType<JellyfishLightningProj>(), NPC.damage, 0);
+                    Projectile.NewProjectile(NPC.Center + offset, NPC.Center.DirectionTo(player.MountedCenter).RotatedBy(MathHelper.PiOver2 / 3) * 6f, ModContent.ProjectileType<JellyfishLightningProj>(), NPC.GetAttackDamage_ForProjectiles(30, 50), 0);
                 }
             }
             if (LocalCounter >= 84)
@@ -415,7 +443,7 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             }
         }
 
-        public void ExplosionAttack(Player player, bool aroundPlayer, bool onPlayer)
+        public void ExplosionAttack(Player player, bool aroundPlayer, bool onPlayer, bool shootOtherProjectiles = false)
         {
             LocalCounter++;
             if (LocalCounter > 15)
@@ -437,16 +465,22 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                     else
                         multiplier = j;
 
-                    if (LocalCounter == TrailAttackTime * multiplier && aroundPlayer)
+                    if (LocalCounter == TrailAttackTime * multiplier && aroundPlayer == true)
                     {
                         Vector2 pos1 = ExtendedUtils.GetPositionAroundTarget(target.MountedCenter, Main.rand.Next(60, 720), true);
-                        Projectile.NewProjectile(pos1, pos1.DirectionTo(player.MountedCenter), ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.damage, 0);
+                        Projectile.NewProjectile(pos1, pos1.DirectionTo(player.MountedCenter), ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.GetAttackDamage_ForProjectiles(50, 90), 0);
                     }
 
-                    if (LocalCounter == (TrailAttackTime * multiplier * 2f) + (TrailAttackTime * 0.5f) && onPlayer)
+                    if (LocalCounter == (TrailAttackTime * multiplier * 2f) + (TrailAttackTime * 0.5f) && onPlayer == true)
                     {
                         Vector2 pos2 = ExtendedUtils.GetPositionAroundTarget(target.MountedCenter, Main.rand.Next(5, 60), false);
-                        Projectile.NewProjectile(pos2, pos2.DirectionTo(target.MountedCenter), ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.damage, 0);
+                        Projectile.NewProjectile(pos2, pos2.DirectionTo(target.MountedCenter), ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.GetAttackDamage_ForProjectiles(50, 90), 0);
+                    }
+
+                    if (LocalCounter == (TrailAttackTime * multiplier * 1.5f) && shootOtherProjectiles == true)
+                    {
+                        Vector2 pos3 = ExtendedUtils.GetPositionAroundTarget(target.MountedCenter, Main.rand.Next(900, 1200), false);
+                        Projectile.NewProjectile(pos3, pos3.DirectionTo(target.MountedCenter).RotatedByRandom(0.1f) * Main.rand.Next(12, 15), ModContent.ProjectileType<JellyfishBoltProj>(), NPC.GetAttackDamage_ForProjectiles(20, 40), 0);
                     }
                 }
             }
@@ -477,13 +511,13 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                     float rotation = ExtendedUtils.GetCircle(i * 3, TotalProjectiles) + (Main.rand.NextFloat(-3, 3) / 30);
                     Vector2 offset = new Vector2(0, CoreOffset).RotatedBy(rotation);
                     Vector2 speed = new Vector2(0, Main.rand.Next(11, 15)).RotatedBy(rotation);
-                    Projectile.NewProjectile(NPC.Center + offset, speed, ModContent.ProjectileType<JellyfishMovingExplosionProj>(), NPC.damage, 0);
+                    Projectile.NewProjectile(NPC.Center + offset, speed, ModContent.ProjectileType<JellyfishMovingExplosionProj>(), NPC.GetAttackDamage_ForProjectiles(30, 50), 0);
                 }
 
                 if (LocalCounter == (i * 6))
                 {
                     Vector2 speed = NPC.Center.DirectionTo(player.MountedCenter);
-                    Projectile.NewProjectile(ExtendedUtils.GetPositionAroundTarget(NPC.Center, Main.rand.Next(60, 720), true), Vector2.Zero, ModContent.ProjectileType<JellyfishMovingExplosionProj>(), NPC.damage, 0);
+                    Projectile.NewProjectile(ExtendedUtils.GetPositionAroundTarget(NPC.Center, Main.rand.Next(60, 720), true), speed, ModContent.ProjectileType<JellyfishMovingExplosionProj>(), NPC.GetAttackDamage_ForProjectiles(30, 50), 0);
                 }
             }
 
@@ -527,13 +561,13 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             }
             if (LocalCounter == 30)
             {
-                SoundEngine.PlaySound(SoundID.Item62, NPC.Center);
+                SoundEngine.PlaySound(SoundID.Item72, NPC.Center);
 
                 for (int i = 0; i < TotalExplosionProjectiles; i++)
                 {
                     DustHelper(false, 1f, BubbleDust);
                     Vector2 speed = new Vector2(0, Main.rand.Next(5, 6)).RotatedBy(ExtendedUtils.GetCircle(i, TotalExplosionProjectiles)).RotatedByRandom(0.3f);
-                    Projectile.NewProjectile(NPC.Center, speed, ModContent.ProjectileType<JellyfishLightningProj>(), NPC.damage, 0);
+                    Projectile.NewProjectile(NPC.Center, speed, ModContent.ProjectileType<JellyfishLightningProj>(), NPC.GetAttackDamage_ForProjectiles(30, 50), 0);
                 }
             }
 
@@ -552,13 +586,34 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             }
         }
 
+        public void TransitionAttack(Player player)
+        {
+            LocalCounter++;
+
+            for (int i = 0; i < TrailAttackTimeMax; i++)
+            {
+                if (LocalCounter == (TrailAttackTime * i * 0.5f) + (TrailAttackTime * 0.5f))
+                {
+                    Vector2 pos = ExtendedUtils.GetPositionAroundTarget(NPC.Center, Main.rand.Next(50, 500), true);
+                    Projectile.NewProjectile(pos, Vector2.Zero, ModContent.ProjectileType<JellyfishExplosionProj>(), NPC.GetAttackDamage_ForProjectiles(50, 90), 0);
+                }
+
+                if (LocalCounter == (TrailAttackTime * i ) + (TrailAttackTime * 0.5f))
+                {
+                    SoundEngine.PlaySound(SoundID.Item72, NPC.Center);
+                    Vector2 velocity = NPC.DirectionTo(player.MountedCenter).RotatedByRandom(MathHelper.PiOver2) * Main.rand.Next(6, 7);
+                    Projectile.NewProjectile(NPC.Center, velocity, ModContent.ProjectileType<JellyfishLightningProj>(), NPC.GetAttackDamage_ForProjectiles(30, 50), 0);
+                }
+            }
+        }
+
         public void DustHelper(bool inward, float scale, int type)
         {
             for (int i = 0; i < 4; i++)
             {
                 Vector2 DustSpeed;
                 Vector2 DustPosition = NPC.position - new Vector2(10, 10);
-                Dust dust = Main.dust[Dust.NewDust(DustPosition, NPC.width + 20, NPC.height + 20, type, 0, 0, 100, Color.White, scale)];
+                Dust dust = Main.dust[Dust.NewDust(DustPosition, NPC.width + 20, NPC.height + 20, type, 0, 0, 128, Color.White, scale)];
                 if (inward)
                 {
                     DustSpeed = new Vector2(i + 3, 0).RotatedBy(dust.position.AngleTo(NPC.Center + new Vector2(0, 4)));
@@ -577,27 +632,26 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
 
         public override bool PreDraw(SpriteBatch spriteBatch, Color drawColor)
         {
-            Lighting.AddLight(NPC.Center, ExtendedColor.JellyOrange.ToVector3() * 0.5f);
+            Asset<Texture2D> glowBall = ModContent.GetTexture("Blockaroz14Mod/Assets/GlowBall_" + (short)1);
 
-            Asset<Texture2D> GlowBall = ModContent.GetTexture("Blockaroz14Mod/Assets/GlowBall_" + (short)1);
+            Asset<Texture2D> bubbleTexture = ModContent.GetTexture("Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishBubble");
+            Asset<Texture2D> bubbleGlow = ModContent.GetTexture("Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishBubble_Glow");
+            Asset<Texture2D> coreTexture = ModContent.GetTexture("Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishCore");
+            Asset<Texture2D> coreGlow = ModContent.GetTexture("Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishCore_Glow");
 
-            Asset<Texture2D> BubbleTexture = ModContent.GetTexture("Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishBubble");
-            Asset<Texture2D> CoreTexture = ModContent.GetTexture("Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishCore");
-            Asset<Texture2D> CoreGlow = ModContent.GetTexture("Blockaroz14Mod/Content/NPCs/JellyfishBoss/JellyfishCore_Glow");
-
-            float waveX = (float)Math.Cos(Main.GlobalTimeWrappedHourly * 7.33f) * 0.075f;
-            float waveY = (float)Math.Sin(Main.GlobalTimeWrappedHourly * 7.33f) * 0.075f;
+            float waveX = (float)Math.Cos(Main.GlobalTimeWrappedHourly * 7.33f) * 0.15f;
+            float waveY = (float)Math.Sin((Main.GlobalTimeWrappedHourly * 7.33f) + 0.5f) * 0.15f;
             Vector2 wobble = new Vector2(1 + waveX, 1 + waveY);
 
             float rotation = NPC.rotation;
-            Vector2 bubbleOrigin = BubbleTexture.Size() / 2;
-            Vector2 coreOrigin = CoreGlow.Size() / 2;
+            Vector2 bubbleOrigin = bubbleTexture.Size() / 2;
+            Vector2 coreOrigin = coreGlow.Size() / 2;
 
             Vector2 trueScale = Vector2.One;
             Vector2 wobbleScale = trueScale;
 
             Color color = Color.White;
-            color.A /= 2;
+            color.A = 20;
 
             if (DrawPhase == -1)//teleport
             {
@@ -612,8 +666,8 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
             }
             else if (DrawPhase == -3)//more intense wobble
             {
-                float waveX2 = (float)Math.Sin(Main.GlobalTimeWrappedHourly * 16f) * 0.15f;
-                float waveY2 = (float)Math.Cos(Main.GlobalTimeWrappedHourly * 16f) * 0.15f;
+                float waveX2 = (float)Math.Sin(Main.GlobalTimeWrappedHourly * 16f) * 0.2f;
+                float waveY2 = (float)Math.Cos((Main.GlobalTimeWrappedHourly * 16f) + 1f) * 0.2f;
                 Vector2 wobble2 = new Vector2(1 + waveX2, 1 + waveY2);
                 wobbleScale = wobble2 * trueScale;
             }
@@ -622,15 +676,31 @@ namespace Blockaroz14Mod.Content.NPCs.JellyfishBoss
                 wobbleScale = wobble * trueScale;
             }
 
-            float waveW = (float)Math.Cos((Main.GlobalTimeWrappedHourly * 3.665f) + 1f) * 0.06f;
-            Vector2 glowScale = (new Vector2(0.89f) + new Vector2(waveW)) * trueScale;
+            float waveV = (float)Math.Cos((Main.GlobalTimeWrappedHourly * 3.665f) + 1f) * 0.06f;
+            Vector2 glowScale0 = (new Vector2(0.89f) + new Vector2(waveV)) * trueScale;
             Vector2 offsetVector = Vector2.UnitY * trueScale * 20;
 
-            spriteBatch.Draw(CoreTexture.Value, NPC.Center - Main.screenPosition + offsetVector, null, Color.White, rotation, coreOrigin, trueScale, SpriteEffects.None, 0f);
-            spriteBatch.Draw(CoreGlow.Value, NPC.Center - Main.screenPosition + offsetVector, null, color * 0.5f, rotation, coreOrigin, glowScale, SpriteEffects.None, 0f);
-            ExtendedUtils.DrawStreak(GlowBall, SpriteEffects.None, NPC.Center - Main.screenPosition + offsetVector, GlowBall.Size() / 2f, 1.5f, glowScale.X, glowScale.Y, rotation, ExtendedColor.JellyOrange, Color.Goldenrod);
+            spriteBatch.Draw(coreTexture.Value, NPC.Center - Main.screenPosition + offsetVector, null, Color.White, rotation, coreOrigin, trueScale, SpriteEffects.None, 0f);
+            
+            for (int i = 0; i < 2; i++)
+            {
+                float waveW = (float)Math.Cos((Main.GlobalTimeWrappedHourly * 3.665f) + (i * MathHelper.PiOver4)) * 0.06f;
+                Vector2 glowScale = (new Vector2(0.89f) + new Vector2(waveW)) * trueScale;
+                spriteBatch.Draw(coreGlow.Value, NPC.Center - Main.screenPosition + offsetVector, null, color, rotation, coreOrigin, glowScale, SpriteEffects.None, 0f);
+            }
 
-            spriteBatch.Draw(BubbleTexture.Value, NPC.Center - Main.screenPosition, null, color, rotation, bubbleOrigin, wobbleScale, SpriteEffects.None, 0f);
+            ExtendedUtils.DrawStreak(glowBall, SpriteEffects.None, NPC.Center - Main.screenPosition + offsetVector, glowBall.Size() / 2f, 1.5f, glowScale0.X, glowScale0.Y, rotation, ExtendedColor.JellyOrange, Color.Goldenrod);
+
+            Dust coreDust = Dust.NewDustDirect(NPC.Center + offsetVector - new Vector2(30), 60, 60, JellyExplodeDust, 0, 0, 128, Color.White, 1.5f);
+            Vector2 speed = coreDust.position.DirectionFrom(NPC.Center + offsetVector) * 2f;
+            coreDust.velocity.Normalize();
+            coreDust.velocity = speed;
+            coreDust.position += NPC.velocity;
+
+            spriteBatch.Draw(bubbleGlow.Value, NPC.Center - Main.screenPosition, null, color, rotation, bubbleOrigin, wobbleScale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bubbleTexture.Value, NPC.Center - Main.screenPosition, null, Color.White, rotation, bubbleOrigin, wobbleScale, SpriteEffects.None, 0f);
+
+            Lighting.AddLight(NPC.Center + offsetVector, ExtendedColor.JellyOrange.ToVector3() * 0.5f);
 
             return false;
         }

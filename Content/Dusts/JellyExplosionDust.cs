@@ -15,13 +15,14 @@ namespace Blockaroz14Mod.Content.Dusts
         {
             Lighting.AddLight(dust.position, ExtendedColor.JellyOrange.ToVector3() * dust.scale * 0.6f);
             dust.velocity *= 1.05f;
+            dust.alpha = 128;
             return true;
         }
 
         public override Color? GetAlpha(Dust dust, Color lightColor)
         {
             Color result = Color.White;
-            result.A /= 3;
+            result.A = 128;
             return result;
         }
     }

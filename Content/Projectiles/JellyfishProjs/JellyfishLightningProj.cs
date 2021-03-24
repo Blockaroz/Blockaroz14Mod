@@ -32,7 +32,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
             Projectile.ignoreWater = true;
             Projectile.penetrate = -1;
             Projectile.extraUpdates = 3;
-            Projectile.timeLeft = 900;
+            Projectile.timeLeft = 901;
         }
 
         private float random = 1f;
@@ -40,13 +40,13 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
         public override void AI()
         {
 
-            if (Projectile.timeLeft <= 140)
+            if (Projectile.timeLeft <= 120)
                 Projectile.velocity = Vector2.Zero;
 
 
             Projectile.localAI[0]++;
 
-            if (Projectile.localAI[0] >= Main.rand.Next(3, 36))
+            if (Projectile.localAI[0] >= Main.rand.Next(3, 36) && Projectile.velocity != Vector2.Zero)
             {
                 if (random != 0)
                     random *= -1f;
@@ -83,7 +83,10 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
         {
             Asset<Texture2D> texture = ModContent.GetTexture("Blockaroz14Mod/Assets/Streak_" + (short)1);
 
-            ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, texture.Size() / 2f, Projectile.scale * 0.3f, 1f, 1.2f, Projectile.rotation, ExtendedColor.JellyOrange, Color.White);
+            Color alphaOrange = ExtendedColor.JellyOrange;
+            alphaOrange.A = 0;
+
+            ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.Center - Main.screenPosition, texture.Size() / 2f, Projectile.scale * 0.3f, 1f, 1.2f, Projectile.rotation, alphaOrange, Color.White);
 
             for (int i = 0; i < ProjectileID.Sets.TrailCacheLength[Type]; i++)
             {
@@ -92,14 +95,14 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
                 float length = Projectile.scale * MathHelper.Lerp(1.5f, 1f, Utils.GetLerpValue(60, 1, i, true));
                 Color lerpColor = Color.Lerp(Color.Goldenrod, Color.White, strength);
 
-                ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.oldPos[i] + (Projectile.Size / 2) - Main.screenPosition, texture.Size() / 2f, strength2, 1f, length, Projectile.oldRot[i], ExtendedColor.JellyOrange, lerpColor);
+                ExtendedUtils.DrawStreak(texture, SpriteEffects.None, Projectile.oldPos[i] + (Projectile.Size / 2) - Main.screenPosition, texture.Size() / 2f, strength2, 1f, length, Projectile.oldRot[i], alphaOrange, lerpColor);
 
                 Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * 0.3f * strength);
             }
 
             if (Projectile.timeLeft >= 130)
             {
-                Dust dust = Main.dust[Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<JellyExplosionDust>(), Projectile.velocity.X, Projectile.velocity.Y, 128, ExtendedColor.JellyOrange, 1.3f)];
+                Dust dust = Main.dust[Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<JellyExplosionDust>(), Projectile.velocity.X, Projectile.velocity.Y, 128, Color.White, 1.3f)];
                 dust.noGravity = true;
                 dust.velocity *= 1.4f;
             }

@@ -65,7 +65,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
                     dust.velocity = speed;
                     dust.noLightEmittence = true;
 
-                    Dust dust2 = Main.dust[Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<JellyExplosionDust>(), 0, 0, 128, ExtendedColor.JellyOrange, 1.5f)];
+                    Dust dust2 = Main.dust[Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<JellyExplosionDust>(), 0, 0, 128, Color.White, 1.5f)];
                     dust2.noGravity = true;
                     dust2.velocity = speed * 2f;
                     dust2.velocity *= 1.4f;
@@ -103,7 +103,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
                 {
                     float strength = Utils.GetLerpValue(10, 0, i, true);
                     Color trailColor = Color.Lerp(Color.Goldenrod, ExtendedColor.JellyOrange, strength) * strength;
-                    trailColor.A /= 3;
+                    trailColor.A /= 2;
                     Vector2 pos = Projectile.oldPos[i] - Main.screenPosition + (Projectile.Size / 2f);
                     spriteBatch.Draw(TextureAssets.Projectile[Type].Value, pos, null, trailColor, 0, Projectile.Size / 2f, bubbleScale, SpriteEffects.None, 0);
                 }

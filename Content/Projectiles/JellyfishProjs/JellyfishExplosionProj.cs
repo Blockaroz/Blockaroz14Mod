@@ -52,13 +52,18 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
                     dust.velocity = speed;
                     dust.noLightEmittence = true;
 
-                    Dust dust2 = Main.dust[Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<JellyExplosionDust>(), 0, 0, 128, ExtendedColor.JellyOrange, 1.5f)];
+                    Dust dust2 = Main.dust[Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<JellyExplosionDust>(), 0, 0, 128, Color.White, 1.5f)];
                     dust2.noGravity = true;
                     dust2.velocity = speed * 2f;
                     dust2.velocity *= 1.4f;
                     dust2.velocity.Y *= 0.6f;
                 }
             }
+
+            Projectile others = Main.projectile[Type];
+            if (Projectile.Colliding(Projectile.getRect(), others.getRect()))
+                Projectile.velocity += Projectile.DirectionFrom(others.Center) * 2f;
+            //no idea if this does what's intended
 
             float lightStrength = Utils.GetLerpValue(0, 80, Projectile.ai[0]);
             Lighting.AddLight(Projectile.Center, ExtendedColor.JellyOrange.ToVector3() * lightStrength);
@@ -86,7 +91,7 @@ namespace Blockaroz14Mod.Content.Projectiles.JellyfishProjs
             if (Projectile.ai[0] <= 60)
             {
                 float bubbleScale = ExtendedUtils.GetSquareLerp(9, 50, 9, Projectile.ai[0]);
-                spriteBatch.Draw(TextureAssets.Projectile[Type].Value, Projectile.Center - Main.screenPosition, null, drawColor, 0, Projectile.Size / 2f, bubbleScale, SpriteEffects.None, 0);
+                spriteBatch.Draw(TextureAssets.Projectile[Type].Value, Projectile.Center - Main.screenPosition, null, Color.White, 0, Projectile.Size / 2f, bubbleScale, SpriteEffects.None, 0);
             }
 
             float explosionScale = ExtendedUtils.GetSquareLerp(55, 58, 70, Projectile.ai[0]) * 1.5f;
