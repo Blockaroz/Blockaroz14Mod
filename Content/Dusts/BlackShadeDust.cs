@@ -13,7 +13,7 @@ namespace Blockaroz14Mod.Content.Dusts
             dust.scale *= 1.5f;
         }
 
-        public override bool Update(Terraria.Dust dust)
+        public override bool Update(Dust dust)
         {
             dust.rotation *= 0.8f;
             dust.velocity *= 0.99f;

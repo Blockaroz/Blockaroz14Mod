@@ -28,7 +28,7 @@ namespace Blockaroz14Mod.Effects
         private float StripWidth(float progressOnStrip)
         {
             float num = 1f;
-            float lerpValue = Utils.GetLerpValue(0f, 0.2f, progressOnStrip, clamped: true);
+            float lerpValue = Terraria.Utils.GetLerpValue(0f, 0.2f, progressOnStrip, clamped: true);
             num *= 1f - (1f - lerpValue) * (1f - lerpValue);
             return MathHelper.Lerp(0f, 13f, num) * widthFactor;
         }

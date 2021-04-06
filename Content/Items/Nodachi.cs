@@ -39,11 +39,11 @@ namespace Blockaroz14Mod.Content.Items
             Vector2 distance = Main.MouseWorld - player.MountedCenter;
 
             if (distance.Length() > 190)
-                distance = new Vector2(190, 0).RotatedBy(Utils.AngleTo(player.MountedCenter, Main.MouseWorld));
+                distance = new Vector2(190, 0).RotatedBy(Terraria.Utils.AngleTo(player.MountedCenter, Main.MouseWorld));
 
             distance += Main.rand.NextVector2Circular(15f, 15f);
             float circle = Main.rand.Next(-50, 50);
-            Projectile.NewProjectile(center, distance / 2, type, damage, knockBack, player.whoAmI, circle);
+            Projectile.NewProjectileDirect(player.GetProjectileSource_Item(Item), center, distance / 2, type, damage, knockBack, player.whoAmI, circle);
             return false;
         }
 

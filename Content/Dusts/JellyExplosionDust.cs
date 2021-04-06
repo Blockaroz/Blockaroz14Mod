@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -14,15 +15,15 @@ namespace Blockaroz14Mod.Content.Dusts
         public override bool Update(Dust dust)
         {
             Lighting.AddLight(dust.position, ExtendedColor.JellyOrange.ToVector3() * dust.scale * 0.6f);
-            dust.velocity *= 1.05f;
-            dust.alpha = 128;
+            dust.velocity *= 1.08f;
+            dust.rotation = dust.velocity.ToRotation() - MathHelper.PiOver2;
             return true;
         }
 
         public override Color? GetAlpha(Dust dust, Color lightColor)
         {
             Color result = Color.White;
-            result.A = 128;
+            result.A /= 3;
             return result;
         }
     }

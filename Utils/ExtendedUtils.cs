@@ -1,12 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
+using System.Collections.Generic;
 using Terraria;
 
 namespace Blockaroz14Mod
 {
     public class ExtendedUtils
     {
+        ///Credits
+        ///Seraph for Bezier help
+        ///NotLe0n for Bezier help
+
         /// <summary>
         /// Modular sparkle drawer. Works best with symmetrical textures.
         /// </summary>
@@ -44,12 +49,12 @@ namespace Blockaroz14Mod
 
         public static float GetSquareLerp(float start, float middle, float end, float value)
         {
-            return Utils.GetLerpValue(start, middle, value, true) * Utils.GetLerpValue(end, middle, value, true);
+            return Terraria.Utils.GetLerpValue(start, middle, value, true) * Terraria.Utils.GetLerpValue(end, middle, value, true);
         }
 
         public static float GetSquareLerp(float start, float middleOne, float middleTwo, float end, float value)
         {
-            return Utils.GetLerpValue(start, middleOne, value, true) * Utils.GetLerpValue(end, middleTwo, value, true);
+            return Terraria.Utils.GetLerpValue(start, middleOne, value, true) * Terraria.Utils.GetLerpValue(end, middleTwo, value, true);
         }
 
         public static float GetCircle(float counter, float total, float piMultiplier = 1f)
@@ -74,6 +79,43 @@ namespace Blockaroz14Mod
                 }
             }
             return center + rotation;
+        }
+
+        public static List<Vector2> ChainPoints(Vector2 startPoint, Vector2 endPoint, int pointCount)
+        {
+            List<Vector2> controlPoints = new List<Vector2>();
+            float interval = 1f / pointCount;
+            for (float i = 0; i < pointCount - 1; i += interval)
+            {
+                controlPoints.Add(Vector2.Lerp(startPoint, endPoint, i));
+            }
+            return controlPoints;
+        }
+
+        public static List<Vector2> QuadraticBezierPoints(Vector2 startPoint, Vector2 midPoint, Vector2 endPoint, int pointCount)
+        {
+            List<Vector2> controlPoints = new List<Vector2>();
+            float interval = 1f / (pointCount - 1);
+
+            if (pointCount <= 2)
+            {
+                controlPoints.Add(startPoint);
+                controlPoints.Add(midPoint);
+                controlPoints.Add(endPoint);
+                return controlPoints;
+            }
+
+            else
+            {
+                for (float i = 0; i < pointCount - 1; i += interval)
+                {
+                    Vector2 point1 = Vector2.Lerp(startPoint, midPoint, i);
+                    Vector2 point2 = Vector2.Lerp(midPoint, endPoint, i);
+                    Vector2 control = Vector2.Lerp(point1, point2, i);
+                    controlPoints.Add(control);
+                }
+                return controlPoints;
+            }
         }
     }
 }

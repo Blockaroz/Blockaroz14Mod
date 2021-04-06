@@ -17,7 +17,7 @@ namespace Blockaroz14Mod.Effects
         {
             Player player = Main.player[proj.owner];
             MiscShaderData miscShaderData = GameShaders.Misc["Nodachi"];
-            miscShaderData.UseShaderSpecificData(new Vector4(1f, 0f, 0f, 4f));
+            miscShaderData.UseShaderSpecificData(new Vector4(1f, 0f, 0f, 2f));
             miscShaderData.UseSaturation(3f);
             miscShaderData.UseOpacity(4f);
             miscShaderData.Apply();
@@ -40,21 +40,21 @@ namespace Blockaroz14Mod.Effects
 
         private Color StripColors(float progressOnStrip)
         {
-            float lerp = 1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip);
+            float lerp = 1f - Terraria.Utils.GetLerpValue(0f, 0.98f, progressOnStrip);
 
             Color color1 = ExtendedColor.LightRed * lerp;
             color1.A /= 2;
             Color color2 = Color.Red * lerp;
             color2.A /= 3;
-            Color result = Color.Lerp(color2, color1, 1f - Utils.GetLerpValue(0.98f, 0f, lerp));
+            Color result = Color.Lerp(color2, color1, 1f - Terraria.Utils.GetLerpValue(0.98f, 0f, lerp));
             return result;
         }
 
         private float StripWidth(float progressOnStrip)
         {
-            float lerp = Utils.GetLerpValue(0f, 1f, (float)Math.Sin(progressOnStrip), true);
-            float t = MathHelper.Lerp(42f, 58f, lerp);
-            return t;
+            float lerp = Terraria.Utils.GetLerpValue(0f, 1f, (float)Math.Sin(progressOnStrip), true);
+            float width = MathHelper.Lerp(42f, 58f, lerp);
+            return width;
         }
     }
 }

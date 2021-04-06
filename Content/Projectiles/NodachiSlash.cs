@@ -32,7 +32,7 @@ namespace Blockaroz14Mod.Content.Projectiles
         {
             Player player = Main.player[Projectile.owner];
             Vector2 mountedCenter = player.MountedCenter;
-            float lerpValue = Utils.GetLerpValue(900f, 0f, Projectile.velocity.Length() * 2f, clamped: true);
+            float lerpValue = Terraria.Utils.GetLerpValue(900f, 0f, Projectile.velocity.Length() * 2f, clamped: true);
             float num = MathHelper.Lerp(0.7f, 2f, lerpValue);
             Projectile.localAI[0] += num;
             float TotalTime = 50f;
@@ -42,13 +42,13 @@ namespace Blockaroz14Mod.Content.Projectiles
                 return;
             }
             float CurrentTimeOverMax = Projectile.localAI[0] / TotalTime;
-            float lerpValue2 = Utils.GetLerpValue(0f, 1f, CurrentTimeOverMax, clamped: true);
+            float lerpValue2 = Terraria.Utils.GetLerpValue(0f, 1f, CurrentTimeOverMax, clamped: true);
             float num3 = Projectile.ai[0];
             float num4 = Projectile.velocity.ToRotation();
             float PiFloat = (float)Math.PI;
             float dir = (Projectile.velocity.X > 0f) ? 1 : (-1);
             float num7 = PiFloat + dir * lerpValue2 * ((float)Math.PI * 2f);
-            float num8 = Projectile.velocity.Length() + Utils.GetLerpValue(0.5f, 1f, lerpValue2, clamped: true) * 40f;
+            float num8 = Projectile.velocity.Length() + Terraria.Utils.GetLerpValue(0.5f, 1f, lerpValue2, clamped: true) * 40f;
             if (num8 < TotalTime)
             {
                 num8 = TotalTime;
@@ -56,7 +56,7 @@ namespace Blockaroz14Mod.Content.Projectiles
             Vector2 value = mountedCenter;
             Vector2 spinningpoint = new Vector2(1f, 0f).RotatedBy(num7) * new Vector2(num8, num3 * MathHelper.Lerp(2f, 1f, lerpValue));
             Vector2 value2 = value + spinningpoint.RotatedBy(num4);
-            Vector2 value3 = (1f - Utils.GetLerpValue(0f, 0.5f, lerpValue2, clamped: true)) * new Vector2(((Projectile.velocity.X > 0f) ? 1 : (-1)) * (0f - num8) * 0.1f, (0f - Projectile.ai[0]) * 0.3f);
+            Vector2 value3 = (1f - Terraria.Utils.GetLerpValue(0f, 0.5f, lerpValue2, clamped: true)) * new Vector2(((Projectile.velocity.X > 0f) ? 1 : (-1)) * (0f - num8) * 0.1f, (0f - Projectile.ai[0]) * 0.3f);
             float num10 = num7 + num4;
             Projectile.rotation = num10 + (float)Math.PI / 2f;
             Projectile.Center = value2 + value3;
